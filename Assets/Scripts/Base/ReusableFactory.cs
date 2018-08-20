@@ -1,20 +1,20 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class ReusableFactory
+public class ReusableFactory<T> where T : ReusableGameObject
 {
     List<ReusableGameObject> _enabled = new List<ReusableGameObject>();
-    List<ReusableGameObject> _disabled = new List<ReusableGameObject>();
-    private ReusableGameObject _prefab;
+    Queue<ReusableGameObject> _disabled = new Queue<ReusableGameObject>();
+    private T _prefab;
     private Transform _lair;
 
     private void _disableObject(ReusableGameObject obj)
     {
         _enabled.Remove(obj);
-        _disabled.Add(obj);
+        _disabled.Enqueue(obj);
     }
 
-    public ReusableFactory(ReusableGameObject prefab, Transform lair)
+    public ReusableFactory(T prefab, Transform lair)
     {
         _prefab = prefab;
         _lair = lair;
@@ -27,12 +27,12 @@ public class ReusableFactory
         return gObj;
     }
 
-    public ReusableGameObject Produce(Vector2 position)
+    public T Produce(Vector2 position)
     {
         ReusableGameObject gObj;
         if (_disabled.Count > 1)
         {
-            gObj = _disabled.PopAt(0);
+            gObj = _disabled.Dequeue();
         }
         else
         {
@@ -40,6 +40,6 @@ public class ReusableFactory
         }
         _enabled.Add(gObj);
         gObj.Enable(position);
-        return gObj;
+        return gObj.GetComponent<T>();
     }
 }

@@ -11,20 +11,20 @@ public class PlayerWeapon : MonoBehaviour
 
     private float _lastFireTime;
 
-    private ReusableFactory _bulletsFactory;
+    private ReusableFactory<Bullet> _bulletsFactory;
 
     private void Awake()
     {
-        _bulletsFactory = new ReusableFactory(_prefabBullet, _bulletsLair);
+        _bulletsFactory = new ReusableFactory<Bullet>(_prefabBullet, _bulletsLair);
     }
 
     public void Shot()
     {
         if (_lastFireTime < Time.time)
         {
-            float shift = Random.Range(-_accuracy, _accuracy);
-            var dir = Quaternion.AngleAxis(shift, Vector3.forward) * (_aim.position - transform.position).normalized;
-            Bullet bullet = _bulletsFactory.Produce(transform.position) as Bullet;
+            float accuracy = Random.Range(-_accuracy, _accuracy);
+            var dir = Quaternion.AngleAxis(accuracy, Vector3.forward) * (_aim.position - transform.position).normalized;
+            Bullet bullet = _bulletsFactory.Produce(transform.position);
             bullet.AddSpeed(dir, _speedBullet);
             _lastFireTime = Time.time + 1f / _fireRate;
         }

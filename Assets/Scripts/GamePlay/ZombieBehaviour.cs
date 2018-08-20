@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(ZombieMovement))]
 public class ZombieBehaviour : ReusableGameObject
 {
     [Header("Data")] [SerializeField] private float _health;
@@ -12,20 +13,13 @@ public class ZombieBehaviour : ReusableGameObject
     [SerializeField] private Animator _animator;
     [SerializeField] private GameObject _body;
 
-    private AutoPilot _autoPilot;
+    private ZombieMovement _zombieMovement;
 
     private float _currentHealth;
 
     private void Awake()
     {
-        if (GetComponent<AutoPilot>() != null)
-        {
-            _autoPilot = GetComponent<AutoPilot>();
-        }
-        else
-        {
-            Debug.LogWarning("ZombieBehaviour: AutoPilot not exist");
-        }
+        _zombieMovement = GetComponent<ZombieMovement>();
     }
 
     public override void Enable(Vector2 position)
@@ -34,7 +28,7 @@ public class ZombieBehaviour : ReusableGameObject
         _healthBar.maxValue = _health;
         _currentHealth = _health;
         _healthBar.value = _currentHealth;
-        _autoPilot.SetParameters(PlayController.Instance.Player.transform, _speed);
+        _zombieMovement.SetParameters(PlayController.Instance.Player.transform, _speed);
     }
 
     public void MakeDamage(float damage)
@@ -59,6 +53,6 @@ public class ZombieBehaviour : ReusableGameObject
 
     private void FixedUpdate()
     {
-        _body.transform.rotation = _autoPilot.GetDirection().LookRotation2D(0);
+        _body.transform.rotation = _zombieMovement.GetDirection().LookRotation2D(0);
     }
 }

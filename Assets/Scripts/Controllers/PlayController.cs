@@ -11,21 +11,24 @@ public class PlayController : MonoBehaviour
     [Serializable]
     private class ZTypeFactory
     {
-        public string Name = "Zombie";
-        public ZombieBehaviour Behaviour = null;
-        [Range(0, 100)] public int Chance;
+        [SerializeField] private ZombieBehaviour _behaviour;
+        [SerializeField] [Range(0, 100)] private int _chance;
 
-        private ReusableFactory _zombiesFactory;
+        private ReusableFactory<ZombieBehaviour> _zombiesFactory;
+
+        public int Chance
+        {
+            get { return _chance; }
+        }
 
         public void CreateFactory(Transform lair)
         {
-            _zombiesFactory = new ReusableFactory(Behaviour, lair);
+            _zombiesFactory = new ReusableFactory<ZombieBehaviour>(_behaviour, lair);
         }
 
-        public ZombieBehaviour GetBehaviour(Vector2 position)
+        public void ProduceZombie(Vector2 position)
         {
-            ZombieBehaviour zombie = _zombiesFactory.Produce(position) as ZombieBehaviour;
-            return zombie;
+            _zombiesFactory.Produce(position);
         }
     }
 
@@ -37,7 +40,7 @@ public class PlayController : MonoBehaviour
     [SerializeField] private List<ZTypeFactory> _zombieFactories = new List<ZTypeFactory>();
     [SerializeField] private ReusableGameObject _bloodstainPrefab;
 
-    private ReusableFactory _bloodstainFactory;
+    private ReusableFactory<ReusableGameObject> _bloodstainFactory;
 
     public int CounterKilled { get; private set; }
     public float TimeStartPlay { get; private set; }
@@ -57,7 +60,7 @@ public class PlayController : MonoBehaviour
     private void Start()
     {
         _zombieFactories.ForEach(x => x.CreateFactory(_zombiesLair));
-        _bloodstainFactory = new ReusableFactory(_bloodstainPrefab, _bloodstainLair);
+        _bloodstainFactory = new ReusableFactory<ReusableGameObject>(_bloodstainPrefab, _bloodstainLair);
 
         for (int i = 0; i < _maxZombiesCount; i++)
         {
@@ -80,7 +83,7 @@ public class PlayController : MonoBehaviour
         {
             if (cursor <= rand && rand <= (cursor + zFactory.Chance))
             {
-                zFactory.GetBehaviour(hit.point);
+                zFactory.ProduceZombie(hit.point);
                 break;
             }
             else

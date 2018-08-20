@@ -1,16 +1,17 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody2D))]
 public class PlayerBehaviour : MonoBehaviour
 {
-    [Header("Data")]
-    [SerializeField] private float _health;
+    [Header("Data")] [SerializeField] private float _health;
     [SerializeField] [Range(0, 1)] private float _defence;
     [SerializeField] private float _speed;
     [SerializeField] private GameObject _body;
     [SerializeField] private List<PlayerWeapon> Weapons;
 
-    private int _currentSelectWeaponIndex = 0;
+    private int _currentSelectWeaponIndex;
+
     private Rigidbody2D _rigidbody2D;
 
     private Vector2 _currentVelocity;
@@ -18,14 +19,7 @@ public class PlayerBehaviour : MonoBehaviour
 
     private void Awake()
     {
-        if (GetComponent<Rigidbody2D>() != null)
-        {
-            _rigidbody2D = GetComponent<Rigidbody2D>();
-        }
-        else
-        {
-            Debug.LogWarning("PlayerBehaviour: Rigidbody2D not exist");
-        }
+        _rigidbody2D = GetComponent<Rigidbody2D>();
     }
 
     private void Start()
@@ -38,13 +32,7 @@ public class PlayerBehaviour : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            _selectDown();
-            EventManager.SelectedWeaponChange.OnChangeTrigger(_currentSelectWeaponIndex);
-        }
-
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            _selectUp();
+            _nextWeapon();
             EventManager.SelectedWeaponChange.OnChangeTrigger(_currentSelectWeaponIndex);
         }
 
@@ -60,31 +48,28 @@ public class PlayerBehaviour : MonoBehaviour
         float y = Input.GetAxis("Vertical");
 
         Vector2 newVelocity = new Vector2(x, y);
-        float newMagnitude = newVelocity.magnitude;
 
         if (newVelocity != Vector2.zero)
         {
+            float newMagnitude = newVelocity.magnitude;
             // if vectors have opposite directions, make perpendicular vector in less side
             // it's need for create smooth drift
             if (Vector2.Dot(newVelocity, _currentVelocity) < 0)
             {
-                Vector2 perpendicular = _getPerpendicularVector(_currentVelocity);
+                Vector2 perpendicular = _currentVelocity.PerpendicularClockwise();
                 newVelocity = perpendicular * Mathf.Sign(Vector2.Dot(perpendicular, newVelocity));
             }
 
-            _currentVelocity = Vector2.Lerp(_currentVelocity.normalized, newVelocity.normalized,
+            _currentVelocity = Vector2.Lerp(_currentVelocity.normalized, newVelocity,
                 (10 * newMagnitude) * Time.fixedDeltaTime);
 
             // apply _currentVelocity for rigidbody2D
-            if (_rigidbody2D != null)
+            if (newMagnitude > 0.4f)
             {
-                if (newMagnitude > 0.4f)
-                {
-                    _rigidbody2D.AddForce(_currentVelocity.normalized * _speed * _rigidbody2D.mass,
-                        ForceMode2D.Force);
-                }
-                _body.transform.rotation = _currentVelocity.normalized.LookRotation2D();
+                _rigidbody2D.AddForce(_currentVelocity.normalized * _speed * _rigidbody2D.mass,
+                    ForceMode2D.Force);
             }
+            _body.transform.rotation = _currentVelocity.normalized.LookRotation2D();
         }
     }
 
@@ -98,36 +83,17 @@ public class PlayerBehaviour : MonoBehaviour
         }
     }
 
-    private void _selectDown()
+    private void _nextWeapon()
     {
         Weapons[_currentSelectWeaponIndex].gameObject.SetActive(false);
-        if (_currentSelectWeaponIndex == 0)
-        {
-            _currentSelectWeaponIndex = Weapons.Count - 1;
-        }
-        else
-        {
-            _currentSelectWeaponIndex--;
-        }
-        Weapons[_currentSelectWeaponIndex].gameObject.SetActive(true);
-    }
 
-    private void _selectUp()
-    {
-        Weapons[_currentSelectWeaponIndex].gameObject.SetActive(false);
-        if (_currentSelectWeaponIndex == Weapons.Count - 1)
+        _currentSelectWeaponIndex++;
+
+        if (_currentSelectWeaponIndex > Weapons.Count - 1)
         {
             _currentSelectWeaponIndex = 0;
         }
-        else
-        {
-            _currentSelectWeaponIndex++;
-        }
-        Weapons[_currentSelectWeaponIndex].gameObject.SetActive(true);
-    }
 
-    private Vector2 _getPerpendicularVector(Vector2 vect)
-    {
-        return new Vector2(-vect.y, vect.x).normalized;
+        Weapons[_currentSelectWeaponIndex].gameObject.SetActive(true);
     }
 }

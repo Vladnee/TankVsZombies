@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class Bullet : ReusableGameObject
 {
     [SerializeField] private float _damage;
@@ -10,23 +11,8 @@ public class Bullet : ReusableGameObject
 
     private void Awake()
     {
-        if (GetComponent<Rigidbody2D>() != null)
-        {
-            _rigidbody2D = GetComponent<Rigidbody2D>();
-        }
-        else
-        {
-            Debug.LogWarning("Bullet: Rigidbody2D not exist");
-        }
-
-        if (GetComponent<Collider2D>() != null)
-        {
-            _collider2D = GetComponent<Collider2D>();
-        }
-        else
-        {
-            Debug.LogWarning("Bullet: Collider2D not exist");
-        }
+        _rigidbody2D = GetComponent<Rigidbody2D>();
+        _collider2D = GetComponent<Collider2D>();
     }
 
     public override void Enable(Vector2 position)

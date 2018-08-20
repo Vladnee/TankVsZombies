@@ -124,7 +124,7 @@ GameObject:
   - component: {fileID: 50699187645879620}
   - component: {fileID: 58576186607466792}
   m_Layer: 9
-  m_Name: Zombie_2
+  m_Name: Zombie_Brutus
   m_TagString: Zombie
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -310,7 +310,6 @@ MonoBehaviour:
   _obstacleLayers:
     serializedVersion: 2
     m_Bits: 1024
-  _speed: 0
   _dimensionsRadius: 1.2
 --- !u!114 &114329791560377340
 MonoBehaviour:

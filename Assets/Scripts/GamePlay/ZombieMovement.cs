@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 
-public class AutoPilot : MonoBehaviour
+[RequireComponent(typeof(Rigidbody2D))]
+public class ZombieMovement : MonoBehaviour
 {
     [SerializeField] private LayerMask _obstacleLayers;
-    [SerializeField] private float _speed;
+    private float _speed;
     private Transform _target;
     [SerializeField] private float _dimensionsRadius = 0.5f;
 
@@ -13,14 +14,7 @@ public class AutoPilot : MonoBehaviour
 
     void Start()
     {
-        if (GetComponent<Rigidbody2D>() != null)
-        {
-            _rigidbody2D = GetComponent<Rigidbody2D>();
-        }
-        else
-        {
-            Debug.LogWarning("AutoPilot: Rigidbody2D not exist");
-        }
+        _rigidbody2D = GetComponent<Rigidbody2D>();
     }
 
     private void FixedUpdate()
@@ -55,11 +49,11 @@ public class AutoPilot : MonoBehaviour
         ray = new RaycastHit2D();
 
         RaycastHit2D dimensionsRight =
-            Physics2D.Raycast(startPosition + _getPerpendicularVector(direction) * _dimensionsRadius,
+            Physics2D.Raycast(startPosition + direction.PerpendicularCounterClockwise() * _dimensionsRadius,
                 direction.normalized, direction.magnitude, _obstacleLayers);
 
         RaycastHit2D dimensionsLeft =
-            Physics2D.Raycast(startPosition - _getPerpendicularVector(direction).normalized * _dimensionsRadius,
+            Physics2D.Raycast(startPosition + direction.PerpendicularClockwise() * _dimensionsRadius,
                 direction.normalized, direction.magnitude,
                 _obstacleLayers);
 
@@ -115,7 +109,7 @@ public class AutoPilot : MonoBehaviour
         Transform obstacleTransform = interestedRay.transform;
         Vector2 pointHit = interestedRay.point;
 
-        Vector2 shift = _getPerpendicularVector(direction) * _dimensionsRadius * 2;
+        Vector2 shift = direction.PerpendicularClockwise() * _dimensionsRadius * 2;
 
         shift *= Mathf.Sign(Vector2.Dot(shift, finishPosition - (Vector2)obstacleTransform.position));
 
@@ -125,10 +119,5 @@ public class AutoPilot : MonoBehaviour
                       (shift + pointRay).normalized * pointRay.magnitude + shift;
 
         _toward = dir;
-    }
-
-    private Vector2 _getPerpendicularVector(Vector2 vect)
-    {
-        return new Vector2(-vect.y, vect.x).normalized;
     }
 }
