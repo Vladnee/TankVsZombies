@@ -5,8 +5,8 @@ public class ReusableFactory<T> where T : ReusableGameObject
 {
     List<ReusableGameObject> _enabled = new List<ReusableGameObject>();
     Queue<ReusableGameObject> _disabled = new Queue<ReusableGameObject>();
-    private T _prefab;
-    private Transform _lair;
+    private readonly T _prefab;
+    private readonly Transform _lair;
 
     private void _disableObject(ReusableGameObject obj)
     {
@@ -40,6 +40,6 @@ public class ReusableFactory<T> where T : ReusableGameObject
         }
         _enabled.Add(gObj);
         gObj.Enable(position);
-        return gObj.GetComponent<T>();
+        return gObj as T;
     }
 }
