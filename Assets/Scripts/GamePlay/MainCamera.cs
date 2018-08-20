@@ -18,7 +18,7 @@ public class MainCamera : MonoBehaviour
         _target = PlayController.Instance.Player.transform;
     }
 
-    void LateUpdate()
+    void Update()
     {
         transform.position = Vector3.Lerp(transform.position, _target.position, 7 * Time.deltaTime);
 
